@@ -13,12 +13,39 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+            // Dados pessoais
             $table->string('name');
+            $table->string('cpf', 11)->unique();
             $table->string('email')->unique();
+            $table->date('birth_date')->nullable();
+
+            // Dados profissionais
+            $table->string('role', 20)->default('employee')->index();
+            $table->string('position')->nullable();
+
+            // Administrador responsável
+            $table->foreignId('manager_id')
+                ->nullable()
+                ->constrained('users')
+                ->restrictOnDelete();
+
+            // Endereço
+            $table->string('zip_code', 8)->nullable();
+            $table->string('street')->nullable();
+            $table->string('number', 20)->nullable();
+            $table->string('complement')->nullable();
+            $table->string('neighborhood')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state', 2)->nullable();
+
+            // Autenticação
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
