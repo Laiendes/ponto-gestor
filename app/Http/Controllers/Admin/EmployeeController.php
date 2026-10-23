@@ -10,6 +10,17 @@ use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
+    public function index(): View
+    {
+        $employees = request()
+            ->user()
+            ->employees()
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.employees.index', compact('employees'));
+    }
+
     public function create(): View
     {
         return view('admin.employees.create');

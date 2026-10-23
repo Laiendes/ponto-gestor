@@ -255,6 +255,12 @@
         </form>
 
         <p>
+            <a href="{{ route('admin.employees.index') }}">
+                Ver funcionários cadastrados
+            </a>
+        </p>
+
+        <p>
             <a href="{{ route('admin.dashboard') }}">
                 Voltar ao dashboard
             </a>

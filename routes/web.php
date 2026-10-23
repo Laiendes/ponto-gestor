@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
             return view('dashboard');
         })->name('admin.dashboard');
 
+        Route::get('/admin/employees', [EmployeeController::class, 'index'])
+            ->name('admin.employees.index');
+
         Route::get('/admin/employees/create', [EmployeeController::class, 'create'])
             ->name('admin.employees.create');
 
