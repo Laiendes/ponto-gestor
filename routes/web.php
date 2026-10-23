@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/dashboard', function () {
             return view('dashboard');
         })->name('admin.dashboard');
+
+        Route::get('/admin/employees/create', [EmployeeController::class, 'create'])
+            ->name('admin.employees.create');
+
+        Route::post('/admin/employees', [EmployeeController::class, 'store'])
+            ->name('admin.employees.store');
     });
 
     Route::middleware('role:employee')->group(function () {
