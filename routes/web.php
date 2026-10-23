@@ -37,6 +37,12 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/admin/employees', [EmployeeController::class, 'store'])
             ->name('admin.employees.store');
+
+        Route::get('/admin/employees/{employee}/edit', [EmployeeController::class, 'edit'])
+            ->name('admin.employees.edit');
+
+        Route::put('/admin/employees/{employee}', [EmployeeController::class, 'update'])
+            ->name('admin.employees.update');
     });
 
     Route::middleware('role:employee')->group(function () {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -39,5 +40,35 @@ class EmployeeController extends Controller
         return redirect()
             ->route('admin.employees.create')
             ->with('success', 'Funcionário cadastrado com sucesso.');
+    }
+
+    public function edit(int $employee): View
+    {
+        $employee = request()
+            ->user()
+            ->employees()
+            ->findOrFail($employee);
+
+        return view('admin.employees.edit', compact('employee'));
+    }
+
+    public function update(UpdateEmployeeRequest $request, int $employee): RedirectResponse
+    {
+        $employee = $request
+            ->user()
+            ->employees()
+            ->findOrFail($employee);
+
+        $data = $request->validated();
+
+        if (empty($data['password'])) {
+            unset($data['password']);
+        }
+
+        $employee->update($data);
+
+        return redirect()
+            ->route('admin.employees.index')
+            ->with('success', 'Funcionário atualizado com sucesso.');
     }
 }
