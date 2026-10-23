@@ -22,4 +22,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', function () {
+            return view('dashboard');
+        })->name('admin.dashboard');
+    });
+
+    Route::middleware('role:employee')->group(function () {
+        Route::get('/employee/dashboard', function () {
+            return view('dashboard');
+        })->name('employee.dashboard');
+    });
 });
