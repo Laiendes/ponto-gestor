@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\TimeEntryReportController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Employee\PasswordController;
 use App\Http\Controllers\Employee\TimeEntryController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,5 +52,10 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::post('/', 'store')->name('store');
                 });
+            Route::get('/password', [PasswordController::class, 'edit'])
+                ->name('password.edit');
+
+            Route::put('/password', [PasswordController::class, 'update'])
+                ->name('password.update');
         });
 });
