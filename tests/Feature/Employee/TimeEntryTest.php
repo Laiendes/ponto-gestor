@@ -129,3 +129,21 @@ test('página apresenta a próxima marcação correta', function () {
     $this->get(route('employee.time-entries.index'))
         ->assertSee('Registrar entrada');
 });
+
+test('funcionário visualiza data e horário do ponto no fuso brasileiro', function () {
+    // 25/10/2026 01:30 UTC corresponde a 24/10/2026 22:30 em São Paulo.
+    $entry = new TimeEntry;
+
+    $entry->user()->associate($this->employee);
+    $entry->type = TimeEntryType::Entry;
+    $entry->recorded_at = '2026-10-25 01:30:00';
+    $entry->save();
+
+    $this->actingAs($this->employee)
+        ->get(route('employee.time-entries.index'))
+        ->assertOk()
+        ->assertSee('24/10/2026')
+        ->assertSee('22:30:00')
+        ->assertDontSee('25/10/2026')
+        ->assertDontSee('01:30:00');
+});

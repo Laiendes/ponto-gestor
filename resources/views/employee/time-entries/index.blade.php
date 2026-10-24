@@ -97,11 +97,11 @@
                                     </td>
 
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                                        {{ $timeEntry->recorded_at->format('d/m/Y') }}
+                                        {{ $timeEntry->recorded_at->copy()->timezone(config('app.display_timezone'))->format('d/m/Y') }}
                                     </td>
 
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                                        {{ $timeEntry->recorded_at->format('H:i:s') }}
+                                        {{ $timeEntry->recorded_at->copy()->timezone(config('app.display_timezone'))->format('H:i:s') }}
                                     </td>
                                 </tr>
                             @endforeach

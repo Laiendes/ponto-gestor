@@ -143,7 +143,9 @@
                                     </td>
 
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
-                                        {{ \Illuminate\Support\Carbon::parse($timeEntry->recorded_at)->format('d/m/Y H:i:s') }}
+                                        {{ \Illuminate\Support\Carbon::parse($timeEntry->recorded_at, 'UTC')
+                                            ->timezone(config('app.display_timezone'))
+                                            ->format('d/m/Y H:i:s') }}
                                     </td>
                                 </tr>
                             @endforeach

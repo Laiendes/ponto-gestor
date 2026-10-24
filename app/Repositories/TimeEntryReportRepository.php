@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class TimeEntryReportRepository
@@ -25,14 +26,29 @@ class TimeEntryReportRepository
             'employee.manager_id = :manager_id',
         ];
 
+        $displayTimezone = config('app.display_timezone');
+
         if ($startDate !== null) {
             $conditions[] = 'te.recorded_at >= :start_date';
-            $bindings['start_date'] = $startDate.' 00:00:00';
+
+            $bindings['start_date'] = Carbon::parse(
+                $startDate.' 00:00:00',
+                $displayTimezone
+            )
+                ->utc()
+                ->format('Y-m-d H:i:s');
         }
 
         if ($endDate !== null) {
-            $conditions[] = 'te.recorded_at < DATE_ADD(:end_date, INTERVAL 1 DAY)';
-            $bindings['end_date'] = $endDate;
+            $conditions[] = 'te.recorded_at < :end_date';
+
+            $bindings['end_date'] = Carbon::parse(
+                $endDate.' 00:00:00',
+                $displayTimezone
+            )
+                ->addDay()
+                ->utc()
+                ->format('Y-m-d H:i:s');
         }
 
         $where = implode(' AND ', $conditions);

@@ -18,8 +18,11 @@ beforeEach(function () {
     ]);
 });
 
-function createTimeEntry(User $employee, string $date, TimeEntryType $type = TimeEntryType::Entry): TimeEntry
-{
+function createTimeEntry(
+    User $employee,
+    string $date,
+    TimeEntryType $type = TimeEntryType::Entry
+): TimeEntry {
     $entry = new TimeEntry;
 
     $entry->user()->associate($employee);
@@ -49,7 +52,7 @@ test('relatório apresenta os dados do funcionário e do administrador', functio
         ->assertSee('Maria Oliveira')
         ->assertSee('Analista')
         ->assertSee($this->admin->name)
-        ->assertSee('20/10/2026 08:30:45')
+        ->assertSee('20/10/2026 05:30:45')
         ->assertSee((string) $entry->id);
 });
 
@@ -80,8 +83,8 @@ test('relatório filtra registros pela data inicial', function () {
             'start_date' => '2026-10-15',
         ]))
         ->assertOk()
-        ->assertSee('20/10/2026 09:00:00')
-        ->assertDontSee('10/10/2026 08:00:00');
+        ->assertSee('20/10/2026 06:00:00')
+        ->assertDontSee('10/10/2026 05:00:00');
 });
 
 test('relatório filtra registros pela data final', function () {
@@ -93,12 +96,13 @@ test('relatório filtra registros pela data final', function () {
             'end_date' => '2026-10-15',
         ]))
         ->assertOk()
-        ->assertSee('10/10/2026 08:00:00')
-        ->assertDontSee('20/10/2026 09:00:00');
+        ->assertSee('10/10/2026 05:00:00')
+        ->assertDontSee('20/10/2026 06:00:00');
 });
 
 test('relatório inclui registros até o último segundo da data final', function () {
-    createTimeEntry($this->employee, '2026-10-20 23:59:59');
+    // 21/10/2026 02:59:59 UTC corresponde a 20/10/2026 23:59:59 no Brasil.
+    createTimeEntry($this->employee, '2026-10-21 02:59:59');
 
     $this->actingAs($this->admin)
         ->get(route('admin.time-entries.index', [
@@ -107,6 +111,45 @@ test('relatório inclui registros até o último segundo da data final', functio
         ]))
         ->assertOk()
         ->assertSee('20/10/2026 23:59:59');
+});
+
+test('relatório inclui registro próximo à meia-noite no dia local correto', function () {
+    // 25/10/2026 01:30 UTC corresponde a 24/10/2026 22:30 no Brasil.
+    createTimeEntry($this->employee, '2026-10-25 01:30:00');
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.time-entries.index', [
+            'start_date' => '2026-10-24',
+            'end_date' => '2026-10-24',
+        ]))
+        ->assertOk()
+        ->assertSee('24/10/2026 22:30:00');
+});
+
+test('relatório exclui registro que pertence ao dia local anterior', function () {
+    // Apesar da data UTC ser 25/10, o registro pertence ao dia 24/10 no Brasil.
+    createTimeEntry($this->employee, '2026-10-25 01:30:00');
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.time-entries.index', [
+            'start_date' => '2026-10-25',
+            'end_date' => '2026-10-25',
+        ]))
+        ->assertOk()
+        ->assertDontSee('24/10/2026 22:30:00');
+});
+
+test('relatório inclui registro no primeiro segundo do dia local', function () {
+    // 25/10/2026 03:00 UTC corresponde a 25/10/2026 00:00 no Brasil.
+    createTimeEntry($this->employee, '2026-10-25 03:00:00');
+
+    $this->actingAs($this->admin)
+        ->get(route('admin.time-entries.index', [
+            'start_date' => '2026-10-25',
+            'end_date' => '2026-10-25',
+        ]))
+        ->assertOk()
+        ->assertSee('25/10/2026 00:00:00');
 });
 
 test('relatório rejeita período com data final anterior à inicial', function () {
