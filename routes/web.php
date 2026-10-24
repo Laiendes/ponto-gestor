@@ -1,7 +1,7 @@
-```php
 <?php
 
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\TimeEntryReportController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Employee\TimeEntryController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
 
             Route::resource('employees', EmployeeController::class)
                 ->except(['show']);
+
+            Route::get('/time-entries', [TimeEntryReportController::class, 'index'])
+                ->name('time-entries.index');
         });
 
     Route::middleware('role:employee')
