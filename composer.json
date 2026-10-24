@@ -1,9 +1,15 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "laiendes/ponto-gestor",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Sistema de gerenciamento de funcionários e registro de ponto desenvolvido com Laravel.",
+    "keywords": [
+        "laravel",
+        "php",
+        "ponto-eletronico",
+        "gestao-de-funcionarios",
+        "mysql"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.3",
