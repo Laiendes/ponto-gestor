@@ -1,78 +1,127 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
 
-    <title>Registro de ponto - PontoGestor</title>
-</head>
-<body>
-    <main>
-        <h1>Registro de ponto</h1>
+@section('title', 'Registro de ponto | PontoGestor')
 
-        <p>
-            Registre sua entrada e saída do trabalho.
-        </p>
+@section('content')
+    <section>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+                Registro de ponto
+            </h1>
 
-        @if (session('success'))
-            <div role="status">
-                {{ session('success') }}
+            <p class="mt-2 text-slate-600">
+                Registre sua entrada e saída do trabalho.
+            </p>
+        </div>
+
+        <div class="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-900">
+                Nova marcação
+            </h2>
+
+            <p class="mt-2 text-sm text-slate-600">
+                O sistema identifica automaticamente se a próxima marcação
+                será uma entrada ou saída.
+            </p>
+
+            <form
+                action="{{ route('employee.time-entries.store') }}"
+                method="POST"
+                class="mt-6"
+            >
+                @csrf
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                    {{ $nextType === \App\Enums\TimeEntryType::Entry
+                        ? 'Registrar entrada'
+                        : 'Registrar saída' }}
+                </button>
+            </form>
+        </div>
+
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-200 px-6 py-5">
+                <h2 class="text-lg font-semibold text-slate-900">
+                    Histórico de registros
+                </h2>
             </div>
-        @endif
 
-        <form action="{{ route('employee.time-entries.store') }}" method="POST">
-            @csrf
+            @if ($timeEntries->isEmpty())
+                <p class="px-6 py-8 text-sm text-slate-500">
+                    Nenhum registro de ponto encontrado.
+                </p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-200">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+                                >
+                                    Tipo
+                                </th>
 
-            <button type="submit">
-                {{ $nextType === \App\Enums\TimeEntryType::Entry
-                    ? 'Registrar entrada'
-                    : 'Registrar saída' }}
-            </button>
-        </form>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+                                >
+                                    Data
+                                </th>
 
-        <h2>Histórico de registros</h2>
+                                <th
+                                    scope="col"
+                                    class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"
+                                >
+                                    Hora
+                                </th>
+                            </tr>
+                        </thead>
 
-        @if ($timeEntries->isEmpty())
-            <p>Nenhum registro de ponto encontrado.</p>
-        @else
-            <table>
-                <thead>
-                    <tr>
-                        <th scope="col">Tipo</th>
-                        <th scope="col">Data</th>
-                        <th scope="col">Hora</th>
-                    </tr>
-                </thead>
+                        <tbody class="divide-y divide-slate-100 bg-white">
+                            @foreach ($timeEntries as $timeEntry)
+                                <tr>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                        @if ($timeEntry->type === \App\Enums\TimeEntryType::Entry)
+                                            <span class="rounded-full bg-green-100 px-3 py-1 font-medium text-green-700">
+                                                Entrada
+                                            </span>
+                                        @else
+                                            <span class="rounded-full bg-amber-100 px-3 py-1 font-medium text-amber-700">
+                                                Saída
+                                            </span>
+                                        @endif
+                                    </td>
 
-                <tbody>
-                    @foreach ($timeEntries as $timeEntry)
-                        <tr>
-                            <td>
-                                {{ $timeEntry->type === \App\Enums\TimeEntryType::Entry
-                                    ? 'Entrada'
-                                    : 'Saída' }}
-                            </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                        {{ $timeEntry->recorded_at->format('d/m/Y') }}
+                                    </td>
 
-                            <td>
-                                {{ $timeEntry->recorded_at->format('d/m/Y') }}
-                            </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                        {{ $timeEntry->recorded_at->format('H:i:s') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-                            <td>
-                                {{ $timeEntry->recorded_at->format('H:i:s') }}
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                <div class="border-t border-slate-200 px-6 py-4">
+                    {{ $timeEntries->links() }}
+                </div>
+            @endif
+        </div>
 
-            {{ $timeEntries->links() }}
-        @endif
-
-        <p>
-            <a href="{{ route('employee.dashboard') }}">
-                Voltar ao dashboard
+        <div class="mt-6">
+            <a
+                href="{{ route('employee.dashboard') }}"
+                class="text-sm font-medium text-indigo-700 hover:text-indigo-900"
+            >
+                ← Voltar ao dashboard
             </a>
-        </p>
-    </main>
-</body>
-</html>
+        </div>
+    </section>
+@endsection
