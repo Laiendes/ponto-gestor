@@ -1,3 +1,4 @@
+```blade
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,9 +15,17 @@
             Gerencie os funcionários vinculados à sua conta.
         </p>
 
-        <a href="{{ route('admin.employees.create') }}">
-            Cadastrar funcionário
-        </a>
+        @if (session('success'))
+            <div role="status">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <p>
+            <a href="{{ route('admin.employees.create') }}">
+                Cadastrar funcionário
+            </a>
+        </p>
 
         @if ($employees->isEmpty())
             <p>Nenhum funcionário cadastrado.</p>
@@ -29,6 +38,7 @@
                         <th scope="col">E-mail</th>
                         <th scope="col">Cargo</th>
                         <th scope="col">Data de cadastro</th>
+                        <th scope="col">Ações</th>
                     </tr>
                 </thead>
 
@@ -40,6 +50,26 @@
                             <td>{{ $employee->email }}</td>
                             <td>{{ $employee->position }}</td>
                             <td>{{ $employee->created_at->format('d/m/Y H:i') }}</td>
+
+                            <td>
+                                <a href="{{ route('admin.employees.edit', $employee) }}">
+                                    Editar
+                                </a>
+
+                                <form
+                                    action="{{ route('admin.employees.destroy', $employee) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Tem certeza de que deseja excluir este funcionário?');"
+                                    style="display: inline;"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

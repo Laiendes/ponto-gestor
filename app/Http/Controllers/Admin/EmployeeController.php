@@ -71,4 +71,18 @@ class EmployeeController extends Controller
             ->route('admin.employees.index')
             ->with('success', 'Funcionário atualizado com sucesso.');
     }
+
+    public function destroy(int $employee): RedirectResponse
+    {
+        $employee = request()
+            ->user()
+            ->employees()
+            ->findOrFail($employee);
+
+        $employee->delete();
+
+        return redirect()
+            ->route('admin.employees.index')
+            ->with('success', 'Funcionário excluído com sucesso.');
+    }
 }
